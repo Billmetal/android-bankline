@@ -3,12 +3,16 @@ package me.dio.bankline.ui.statement
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import androidx.activity.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.snackbar.Snackbar
+import me.dio.bankline.data.State
 import me.dio.bankline.databinding.ActivityBankStatementBinding
 import me.dio.bankline.domain.Correntista
 import me.dio.bankline.domain.Movimentacao
 import me.dio.bankline.domain.TipoMovimentacao
 import me.dio.bankline.ui.statement.adapters.BankStatementAdapter
+import me.dio.bankline.ui.statement.adapters.BankStatementViewModel
 import java.lang.IllegalArgumentException
 
 class BankStatementActivity : AppCompatActivity() {
@@ -25,6 +29,8 @@ class BankStatementActivity : AppCompatActivity() {
         intent.getParcelableExtra<Correntista>(EXTRA_ACCOUNT_HOLDER) ?: throw IllegalArgumentException()
     }
 
+    private val viewModel by viewModels<BankStatementViewModel>()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
@@ -32,16 +38,23 @@ class BankStatementActivity : AppCompatActivity() {
        binding.rvBankStatement.layoutManager = LinearLayoutManager(this)
 
        findBankStatement()
+
+        binding.srlBankStatement.setOnRefreshListener { findBankStatement() }
     }
 
     private fun findBankStatement() {
-        val dataSet = ArrayList<Movimentacao>()
-        dataSet.add(Movimentacao(1,"07/05/2022 13:46","Lorem Ipsum",550.25,TipoMovimentacao.DESPESA,2))
-        dataSet.add(Movimentacao(2,"07/05/2022 13:47","Lorem Ipsum",1000.00,TipoMovimentacao.RECEITA,1))
-        dataSet.add(Movimentacao(3,"07/05/2022 13:48","Lorem Ipsum",450.00,TipoMovimentacao.RECEITA,3))
-        dataSet.add(Movimentacao(4,"07/05/2022 13:49","Lorem Ipsum",800.00,TipoMovimentacao.DESPESA,5))
-        dataSet.add(Movimentacao(5,"07/05/2022 13:50","Lorem Ipsum",230.62,TipoMovimentacao.DESPESA,4))
-        dataSet.add(Movimentacao(6,"07/05/2022 13:55","Lorem Ipsum",2500.00,TipoMovimentacao.RECEITA,2))
-        binding.rvBankStatement.adapter = BankStatementAdapter(dataSet)
+        viewModel.findBankStatement(accountHolder.id).observe(this) { state ->
+            when(state){
+                is State.Success -> {
+                    binding.rvBankStatement.adapter = state.data?.let { BankStatementAdapter(it) }
+                    binding.srlBankStatement.isRefreshing = false
+                }
+                is State.Error -> {
+                    state.message?.let { Snackbar.make(binding.rvBankStatement,it,Snackbar.LENGTH_LONG).show() }
+                    binding.srlBankStatement.isRefreshing = false
+                }
+                State.Wait -> binding.srlBankStatement.isRefreshing = true
+            }
+        }
     }
 }
