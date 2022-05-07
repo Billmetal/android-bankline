@@ -1,0 +1,10 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.Material3.Dark">
+        <!-- Primary brand color. -->
+        <item name="colorPrimary">@color/primary_200</item>
+        <item name="colorPrimaryContainer">@color/primary_700</item>
+        <item name="colorOnPrimaryContainer">@color/primary_100</item>
+        <item name="colorPrimaryInverse">@color/primary_600</item>
+    </style>
+</resources>
