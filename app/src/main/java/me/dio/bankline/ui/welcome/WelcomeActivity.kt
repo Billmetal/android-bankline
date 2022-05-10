@@ -3,10 +3,13 @@ package me.dio.bankline.ui.welcome
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import com.google.android.material.snackbar.Snackbar
 import me.dio.bankline.R
 import me.dio.bankline.databinding.ActivityWelcomeBinding
 import me.dio.bankline.domain.Correntista
 import me.dio.bankline.ui.statement.BankStatementActivity
+import java.lang.Double
+import java.lang.NumberFormatException
 
 class WelcomeActivity : AppCompatActivity() {
 
@@ -19,16 +22,28 @@ class WelcomeActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         binding.btContinue.setOnClickListener {
-            //TODO Melhoria (fácil): validar o preenchimento do ID do Correntista, exibindo um Snackbar em caso de erro.
             //TODO Melhoria (difícil): evoluir a API para recuperar um Correntista por ID, permitindo assim o envio de mais informações para a próxima tela.
 
-            val accountHolderId = binding.etAccountHolderId.text.toString().toInt()
-            val accountHolder = Correntista(accountHolderId)
-
-            val intent = Intent(this,BankStatementActivity::class.java).apply {
-                putExtra(BankStatementActivity.EXTRA_ACCOUNT_HOLDER,accountHolder)
-            }
-            startActivity(intent)
+            val accountHolderId = verifyCorrentistaId()
+            if(accountHolderId > 0) next(accountHolderId)
         }
+    }
+
+    fun verifyCorrentistaId() : Int {
+        return try {
+            binding.etAccountHolderId.text.toString().toInt()
+        } catch(e: Exception) {
+            Snackbar.make(binding.etAccountHolderId,R.string.txt_number_error, Snackbar.LENGTH_LONG).show()
+            0
+        }
+    }
+
+    fun next(accountHolderId: Int) {
+        val accountHolder = Correntista(accountHolderId)
+
+        val intent = Intent(this,BankStatementActivity::class.java).apply {
+            putExtra(BankStatementActivity.EXTRA_ACCOUNT_HOLDER,accountHolder)
+        }
+        startActivity(intent)
     }
 }

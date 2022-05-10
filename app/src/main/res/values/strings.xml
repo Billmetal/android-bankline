@@ -4,4 +4,5 @@
     <string name="txt_welcome">Hello, welcome to Santander Dev Week! Enter an Account Holder Id
         to view your bank statement : </string>
     <string name="txt_tilAccountHolderId_hint">Account Holder Id</string>
+    <string name="txt_number_error">Invalid number, please enter a valid number ! </string>
 </resources>
