@@ -4,10 +4,13 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.viewModels
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.snackbar.Snackbar
 import me.dio.bankline.data.BanklineRepository
 import me.dio.bankline.data.State
+import me.dio.bankline.data.room.MovimentacaoRoom
+import me.dio.bankline.data.room.MovimentacaoRoomViewModel
 import me.dio.bankline.databinding.ActivityBankStatementBinding
 import me.dio.bankline.domain.Correntista
 import me.dio.bankline.domain.Movimentacao
@@ -31,6 +34,14 @@ class BankStatementActivity : AppCompatActivity() {
     }
 
     private val viewModel by viewModels<BankStatementViewModel>()
+
+    // Implementando Room
+    //Para isso, nosso Repository pode evoluir negocialmente para expor os dados locais via LiveData através do Room.
+    //Assim, o App poderá funcionar offline, apresentando as Movimentações da última requisição HTTP realizada com sucesso.
+
+    private val movimentacaoRoomViewModel by lazy {
+        ViewModelProvider(this).get(MovimentacaoRoomViewModel::class.java)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -60,6 +71,7 @@ class BankStatementActivity : AppCompatActivity() {
                     binding.srlBankStatement.isRefreshing = false
                 }
                 is State.Wait -> binding.srlBankStatement.isRefreshing = true
+
             }
         }
     }

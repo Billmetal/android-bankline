@@ -1,8 +1,13 @@
 package me.dio.bankline.data
 
+import android.app.Application
+import android.content.Context
 import android.util.Log
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.liveData
 import me.dio.bankline.data.remote.BanklineApi
+import me.dio.bankline.data.room.MovimentacaoDAO
+import me.dio.bankline.data.room.MovimentacaoRoomViewModel
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.lang.Exception
@@ -38,7 +43,4 @@ object BanklineRepository {
         }
     }
 
-    //TODO Melhoria (difícil): Incluir o Room para persistência local das Movimentações.
-    //Para isso, nosso Repository pode evoluir negocialmente para expor os dados locais via LiveData através do Room.
-    //Assim, o App poderá funcionar offline, apresentando as Movimentações da última requisição HTTP realizada com sucesso.
 }
