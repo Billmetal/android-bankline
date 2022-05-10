@@ -4,8 +4,7 @@ import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
-data class Correntista(
-    val id: Int,
-    val nome: String,
-    val conta: Conta
+data class Conta(
+    val numero: Long,
+    val saldo: Double
 ) : Parcelable

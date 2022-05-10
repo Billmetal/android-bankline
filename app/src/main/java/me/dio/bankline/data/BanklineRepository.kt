@@ -29,6 +29,15 @@ object BanklineRepository {
             }
     }
 
+    fun findCorrentistaById(idCorrentista: Int) = liveData {
+        emit(State.Wait)
+        try {
+            emit(State.Success(data = restApi.findCorrentistaById(idCorrentista)))
+        } catch (e: Exception) {
+            emit(State.Error(e.message))
+        }
+    }
+
     //TODO Melhoria (difícil): Incluir o Room para persistência local das Movimentações.
     //Para isso, nosso Repository pode evoluir negocialmente para expor os dados locais via LiveData através do Room.
     //Assim, o App poderá funcionar offline, apresentando as Movimentações da última requisição HTTP realizada com sucesso.

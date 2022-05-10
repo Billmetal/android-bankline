@@ -5,4 +5,6 @@
         to view your bank statement : </string>
     <string name="txt_tilAccountHolderId_hint">Account Holder Id</string>
     <string name="txt_number_error">Invalid number, please enter a valid number ! </string>
+    <string name="txt_waiting">Waiting …</string>
+    <string name="txt_accountHolder_null">This account holder do not exist !</string>
 </resources>

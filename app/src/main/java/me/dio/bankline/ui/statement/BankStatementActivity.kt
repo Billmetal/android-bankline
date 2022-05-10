@@ -6,6 +6,7 @@ import android.util.Log
 import androidx.activity.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.snackbar.Snackbar
+import me.dio.bankline.data.BanklineRepository
 import me.dio.bankline.data.State
 import me.dio.bankline.databinding.ActivityBankStatementBinding
 import me.dio.bankline.domain.Correntista
@@ -35,6 +36,8 @@ class BankStatementActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
+        Log.e("CORRENTISTA", "Correntista : $accountHolder")
+
        binding.rvBankStatement.layoutManager = LinearLayoutManager(this)
 
        findBankStatement()
@@ -56,7 +59,7 @@ class BankStatementActivity : AppCompatActivity() {
                     state.message?.let { Snackbar.make(binding.rvBankStatement,it,Snackbar.LENGTH_LONG).show() }
                     binding.srlBankStatement.isRefreshing = false
                 }
-                State.Wait -> binding.srlBankStatement.isRefreshing = true
+                is State.Wait -> binding.srlBankStatement.isRefreshing = true
             }
         }
     }

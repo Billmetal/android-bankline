@@ -3,11 +3,15 @@ package me.dio.bankline.ui.welcome
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import androidx.activity.viewModels
 import com.google.android.material.snackbar.Snackbar
 import me.dio.bankline.R
+import me.dio.bankline.data.State
 import me.dio.bankline.databinding.ActivityWelcomeBinding
 import me.dio.bankline.domain.Correntista
 import me.dio.bankline.ui.statement.BankStatementActivity
+import me.dio.bankline.ui.statement.adapters.BankStatementAdapter
+import me.dio.bankline.ui.statement.adapters.BankStatementViewModel
 import java.lang.Double
 import java.lang.NumberFormatException
 
@@ -17,13 +21,13 @@ class WelcomeActivity : AppCompatActivity() {
         ActivityWelcomeBinding.inflate(layoutInflater)
     }
 
+    private val viewModel by viewModels<WelcomeViewModel>()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
         binding.btContinue.setOnClickListener {
-            //TODO Melhoria (difícil): evoluir a API para recuperar um Correntista por ID, permitindo assim o envio de mais informações para a próxima tela.
-
             val accountHolderId = verifyCorrentistaId()
             if(accountHolderId > 0) next(accountHolderId)
         }
@@ -39,11 +43,22 @@ class WelcomeActivity : AppCompatActivity() {
     }
 
     fun next(accountHolderId: Int) {
-        val accountHolder = Correntista(accountHolderId)
 
-        val intent = Intent(this,BankStatementActivity::class.java).apply {
-            putExtra(BankStatementActivity.EXTRA_ACCOUNT_HOLDER,accountHolder)
+        viewModel.findCorrentistaById(accountHolderId).observe(this) { state ->
+            when(state){
+                is State.Success -> {
+                    state.data?.let {
+                        val intent = Intent(this,BankStatementActivity::class.java).apply {
+                            putExtra(BankStatementActivity.EXTRA_ACCOUNT_HOLDER,it)
+                        }
+                        startActivity(intent)
+                    }
+                }
+                is State.Error -> {
+                    state.message?.let { Snackbar.make(binding.tilAccountHolderId,R.string.txt_accountHolder_null,Snackbar.LENGTH_LONG).show() }
+                }
+                is  State.Wait -> Snackbar.make(binding.tilAccountHolderId,R.string.txt_waiting,Snackbar.LENGTH_SHORT).show()
+            }
         }
-        startActivity(intent)
     }
 }
