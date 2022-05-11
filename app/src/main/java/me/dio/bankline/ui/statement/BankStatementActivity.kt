@@ -3,21 +3,22 @@ package me.dio.bankline.ui.statement
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.view.Menu
+import android.widget.SearchView
 import androidx.activity.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.snackbar.Snackbar
-import me.dio.bankline.data.BanklineRepository
+import me.dio.bankline.R
 import me.dio.bankline.data.State
-import me.dio.bankline.data.room.MovimentacaoRoom
 import me.dio.bankline.data.room.MovimentacaoRoomViewModel
 import me.dio.bankline.databinding.ActivityBankStatementBinding
 import me.dio.bankline.domain.Correntista
-import me.dio.bankline.domain.Movimentacao
-import me.dio.bankline.domain.TipoMovimentacao
 import me.dio.bankline.ui.statement.adapters.BankStatementAdapter
 import me.dio.bankline.ui.statement.adapters.BankStatementViewModel
+import java.lang.Double.parseDouble
 import java.lang.IllegalArgumentException
+import java.lang.NumberFormatException
 
 class BankStatementActivity : AppCompatActivity() {
 
@@ -51,16 +52,14 @@ class BankStatementActivity : AppCompatActivity() {
 
        binding.rvBankStatement.layoutManager = LinearLayoutManager(this)
 
-       findBankStatement()
+       findBankStatement(accountHolder.id)
 
-        binding.srlBankStatement.setOnRefreshListener { findBankStatement() }
-
-        //TODO Melhoria (difícil): Incluir a funcionalidade de pesquisar na nossa ActionBar:
-        //Referência: https://developer.android.com/training/search/setup
+        binding.srlBankStatement.setOnRefreshListener { findBankStatement(accountHolder.id) }
+        
     }
 
-    private fun findBankStatement() {
-        viewModel.findBankStatement(accountHolder.id).observe(this) { state ->
+    private fun findBankStatement(id: Int) {
+        viewModel.findBankStatement(id).observe(this) { state ->
             when(state){
                 is State.Success -> {
                     binding.rvBankStatement.adapter = state.data?.let { BankStatementAdapter(it) }
@@ -74,5 +73,27 @@ class BankStatementActivity : AppCompatActivity() {
 
             }
         }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.menu, menu)
+        val search = menu.findItem(R.id.searchBar)
+        val searchView = search.actionView as SearchView
+        searchView.queryHint = "Search"
+        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                return false
+            }
+            override fun onQueryTextChange(newText: String?): Boolean {
+                try{
+                    val number = newText?.let { parseDouble(it) }
+                    if(number != null && number > 0) findBankStatement(number.toInt())
+                } catch (e: NumberFormatException) {
+                    Snackbar.make(searchView,R.string.txt_number_error,Snackbar.LENGTH_LONG).show()
+                }
+                return true
+            }
+        })
+        return super.onCreateOptionsMenu(menu)
     }
 }

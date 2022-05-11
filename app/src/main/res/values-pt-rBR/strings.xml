@@ -7,4 +7,5 @@
     <string name="txt_number_error">Número inválido, por favor informe um número válido ! </string>
     <string name="txt_waiting">Verificando …</string>
     <string name="txt_accountHolder_null">Este correntista não existe !</string>
+    <string name="txt_search">Buscar</string>
 </resources>
